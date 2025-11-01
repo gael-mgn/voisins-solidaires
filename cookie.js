@@ -27,3 +27,7 @@ function getLoginCookie() {
 }
 
 
+function clearLoginCookie() {
+    // On donne le même nom, le même path, et une date d’expiration passée
+    document.cookie = "loginData=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax";
+}

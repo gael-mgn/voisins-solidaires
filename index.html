@@ -29,6 +29,16 @@ const spreadsheetId = "1sVCmgprkNQLroXlowU-Rp0PlUySAFZ331x3H5t3VT7A";
   <header>
     <h1>Mini Le Bon Coin</h1>
     <a id="loginBtn" href="sign-in.html">Connexion</a>
+    <a id="logoutBtn" href="">Se déconnecter</a>
+
+    <script>
+    // Quand on clique sur le bouton, on supprime le cookie
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        clearLoginCookie();
+        alert("Cookie supprimé !");
+
+    });
+</script>
   </header>
 
   <main>
