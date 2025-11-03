@@ -31,6 +31,8 @@
 ></script>
 
   <style>
+    /* Masquer sur les écrans de moins de 768px (téléphones et petits appareils) */
+
     :root{
       --bg:#f5f6f8;
       --card:#ffffff;
@@ -182,7 +184,7 @@
         </div>
       </div>
 
-      <div class="searchbar">
+      <div class="searchbar no-mobile">
         <input id="q" type="search" placeholder="Que recherchez-vous ?" />
         <select id="categorySelect" aria-label="Catégorie">
           <option value="">Toutes catégories</option>
@@ -726,3 +728,11 @@ async function chargement() {
   </script>
 </body>
 </html>
+
+<style>
+  @media (max-width: 767px) {
+  .no-mobile {
+    display: none;
+  }
+}
+</style>
