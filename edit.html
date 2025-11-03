@@ -37,7 +37,7 @@ const images = {
     .meta{font-size:13px;color:var(--muted);margin-bottom:8px}
     .card-row{display:flex;gap:8px;align-items:center}
     .actions{display:flex;gap:8px;margin-top:10px}
-    .btn{background:#111;color:#fff;padding:6px 10px;border-radius:8px;border:0;cursor:pointer;font-size:13px}
+    .btn{background:#ff6b00;color:#fff;padding:6px 10px;border-radius:8px;border:0;cursor:pointer;font-size:13px}
     .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(0,0,0,0.06)}
     .btn.warn{background:var(--danger)}
     .panel{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(10,10,10,0.04)}
@@ -54,7 +54,7 @@ const images = {
 
     /* global loading overlay */
     .global-loader{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(11,11,11,0.45); z-index:1200 }
-    .global-loader .loader-box{ background:var(--card); padding:18px 22px; border-radius:12px; box-shadow:0 10px 40px rgba(2,6,23,0.6); display:flex; gap:12px; align-items:center }
+    .global-loader .loader-box{ background:var(--card); padding:18px 22px; border-radius:12px; box-shadow:0 10px 10px rgba(2,6,23,0.1); display:flex; gap:12px; align-items:center }
     .global-loader .loader-text{ font-size:15px; color:#111 }
 
     /* skeleton cards */
@@ -70,11 +70,11 @@ const images = {
 <body>
   <div class="container">
 
-    <a href="index.html" class="btn-retour">← Retour à l'accueil</a>
+    <a href="index.html" class="btn-retour">Retour à l'accueil</a>
 <style>
   .btn-retour {
   display: inline-block;
-  background-color: #007bff;
+  background-color: #ff6b00;
   color: white;
   text-decoration: none;
   padding: 12px 25px;
@@ -82,10 +82,13 @@ const images = {
   font-weight: 500;
   transition: background-color 0.3s ease;
   margin-bottom: 1rem;
+  border: solid 1px transparent;
 }
 
 .btn-retour:hover {
-  background-color: #0056b3;
+  color: #ff6b00;
+  background-color: transparent;
+  border: solid 1px #ff6b00;
 }
 
 </style>
@@ -471,7 +474,8 @@ console.log(dateFr);
           image: images[categoryInput.value || 'Autre'],
           desc: descInput.value.trim(),
           lat: coord.lat || 0,
-          lon: coord.lon || 0
+          lon: coord.lon || 0,
+          by: user.pseudo
         };
 
         if (nouvelleAnnonce){
@@ -516,6 +520,8 @@ console.log(dateFr);
       deleteRow(spreadsheetId, "posts", id);
       listeIDs = listeIDs.filter(ids => ids !== id);
       updateRow(spreadsheetId, "users", user.email, {posts:listeIDs.join(';')});
+      console.log("Nouvelle liste: ", listeIDs);
+
 
       annonces = annonces.filter(a=>a.id!==id); renderList();
     }

@@ -73,14 +73,14 @@
       font-size: 1.05rem;
       border-radius: 8px;
       border: none;
-      background: black;
+      background: #FF6B00;
       color: white;
       cursor: pointer;
       transition: background 0.3s, transform 0.2s;
     }
 
     .btn:hover {
-      background: #222;
+      /*background: #222;*/
       transform: translateY(-1px);
     }
 
@@ -98,7 +98,7 @@
     }
 
     .signup-link a {
-      color: black;
+      color: #FF6B00;
       text-decoration: none;
       font-weight: 600;
     }

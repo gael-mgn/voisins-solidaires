@@ -13,14 +13,14 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          background: rgba(0,0,0,0.65);
-          color: #fff;
+          background: rgba(0,0,0,0.45);
+          color: black;
           z-index: 999999;
           transition: opacity 320ms ease, visibility 320ms ease;
           opacity: 1;
           visibility: visible;
           -webkit-font-smoothing: antialiased;
-          font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+          font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
         }
         #${LOADER_ID}.cpl--hidden {
           opacity: 0;
@@ -31,13 +31,14 @@
           text-align: center;
           padding: 18px 26px;
           border-radius: 10px;
-          backdrop-filter: blur(4px);
+          background: white;
           max-width: 90%;
+        box-shadow:0 10px 10px rgba(2,6,23,0.2); 
         }
         #${LOADER_ID} .cpl__spinner {
           width: 48px;
           height: 48px;
-          border: 6px solid rgba(255,255,255,0.18);
+          border: 6px solid rgba(255,107,0,1);
           border-top-color: #ffffff;
           border-radius: 50%;
           display: inline-block;
@@ -46,7 +47,7 @@
         }
         @keyframes cpl-spin { to { transform: rotate(360deg); } }
         #${LOADER_ID} .cpl__message {
-          font-size: 14px;
+          font-size: 16px;
           line-height: 1.2;
         }
         @media (max-width:420px) {
@@ -71,28 +72,34 @@
     return overlay;
   }
 
-  // expose functions globally
+  // --- OUVERTURE DU LOADER ---
   window.openPageLoader = function(message) {
     if (document.getElementById(LOADER_ID)) return;
     const el = createLoaderElement(message);
     document.body.appendChild(el);
+
+    // 🧊 Désactiver le scroll pendant le chargement
+    document.body.style.overflow = 'hidden';
   };
 
+  // --- FERMETURE DU LOADER ---
   window.closePageLoader = function() {
     const el = document.getElementById(LOADER_ID);
     if (!el) return;
-    // animation: ajouter classe puis supprimer après transition
+
     el.classList.add('cpl--hidden');
     el.addEventListener('transitionend', function remove() {
       if (el.parentNode) el.parentNode.removeChild(el);
       el.removeEventListener('transitionend', remove);
+
+      // 🔓 Réactiver le scroll après disparition du loader
+      document.body.style.overflow = '';
     });
   };
 
-  // créer et afficher automatiquement au chargement complet de la page
+  // Exemple : affichage auto après chargement complet
   window.addEventListener('load', function() {
-    // ajoute l'écran de chargement dès que la page a été complètement chargée
-    //openPageLoader("eee");
-    // note: il restera jusqu'à ce que closePageLoader() soit appelé
+    // openPageLoader("Chargement en cours...");
+    // closePageLoader() devra être appelé manuellement après traitement.
   });
 })();

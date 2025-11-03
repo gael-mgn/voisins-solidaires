@@ -44,21 +44,24 @@
 
     /* Header: maintenant en deux lignes */
     header{
-      background:linear-gradient(90deg,#ffffff, #fffaf5);
-      border-bottom:1px solid #e9e9ee;
+      
+/*      border-bottom:1px solid #e9e9ee;*/
       position:sticky;top:0;z-index:40;
-      display:flex;flex-direction:column;gap:8px;padding:12px 20px;
+      display:flex;flex-direction:column;
       box-shadow: 0 2px 6px rgba(15,15,20,0.02);
       z-index: 1000;
     }
 
-    .header-top{display:flex;align-items:center;gap:16px}
+    .header-top{display:flex;align-items:center;gap:16px;
+    padding:12px 20px;background:linear-gradient(90deg,#ffffff, #fffaf5);}
     .header-actions{
       display:flex;
       justify-content:flex-end;
       align-items:center;
       gap:10px;
-      padding-top:4px;
+      padding:12px;
+      background-color: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(4px);
     }
 
     .brand{display:flex;align-items:center;gap:12px;font-weight:700}
@@ -74,7 +77,7 @@
       gap:8px;
       padding:8px 12px;
       border-radius:10px;
-      border:1px solid transparent;
+      border:1px solid var(--accent);
       background:transparent;
       cursor:pointer;
       font-weight:600;
@@ -86,10 +89,11 @@
       box-shadow: 0 6px 14px rgba(255,107,0,0.12);
     }
     .auth-btn.ghost {
+      border:1px solid transparent;
       background:transparent;
-      color:var(--muted);
+      color:var(--accent);
     }
-    .auth-link { color:var(--muted); text-decoration:none; padding:8px 10px; border-radius:8px; }
+    .auth-link { color:#3D3D3D; text-decoration:none; padding:8px 10px; border-radius:8px; }
     .auth-link:hover, .auth-btn:hover { transform: translateY(-1px); }
 
     .wrap{max-width:1200px;margin:26px auto;padding:0 20px;display:grid;grid-template-columns:260px 1fr;gap:22px}
@@ -122,10 +126,48 @@
     @media (max-width:880px){
       .wrap{grid-template-columns:1fr;}
       .sidebar{order:2}
-      header{padding:10px}
+      header{}
       .header-top{flex-direction:column;align-items:flex-start;gap:10px}
       .header-actions{justify-content:flex-start}
       .searchbar{width:100%}
+    }
+
+    /* ========== Loader overlay for the map ========== */
+    .map-wrapper { position: relative; width: 100%; height: 100%; }
+    .map-loader {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-direction: column;
+      backdrop-filter: blur(2px);
+      background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.55));
+      z-index: 100; /* au-dessus de la carte */
+      border-radius: 12px;
+    }
+    .map-loader.visible { display: flex; }
+
+    .map-loader .spinner {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 5px solid rgba(0,0,0,0.08);
+      border-top-color: var(--accent);
+      animation: spin 1s linear infinite;
+    }
+    .map-loader .text {
+      font-size: 14px;
+      color: #333;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* small accessible visually-hidden label for screenreaders */
+    .sr-only{
+      position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap;border:0;padding:0;margin:-1px;
     }
   </style>
 </head>
@@ -135,13 +177,13 @@
       <div class="brand">
         <div class="logo"></div>
         <div>
-          <div style="font-size:16px">Petites Annonces</div>
-          <div style="font-size:12px;color:var(--muted)"></div>
+          <div style="font-size:16px">Voisins Solidaires</div>
+          <div style="font-size:12px;color:var(--muted)">Partager la terre, tisser des liens</div>
         </div>
       </div>
 
       <div class="searchbar">
-        <input id="q" type="search" placeholder="Que recherchez-vous ? ex: vélo, canapé, appartement" />
+        <input id="q" type="search" placeholder="Que recherchez-vous ?" />
         <select id="categorySelect" aria-label="Catégorie">
           <option value="">Toutes catégories</option>
         </select>
@@ -155,88 +197,184 @@
     </div>
   </header>
 
-  <style>
-    /* --- SECTION --- */
-    .cta-section {
-      background: linear-gradient(135deg, #007bff, #00c6ff);
-      color: #fff;
-      text-align: center;
-      padding: 80px 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+<style>
+  /* --- SECTION --- */
+  .cta-section {
+    position: relative;
+    background-image: url('image.webp'); /* 🌅 Remplace par ton image */
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    text-align: center;
+    padding: 80px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
 
-    /* --- CONTENU --- */
-    .cta-content {
-      max-width: 600px;
-    }
+  /* --- OVERLAY SOMBRE --- */
+  .cta-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.15);
+    z-index: 1;
+  }
 
-    /* --- TITRE & TEXTE --- */
+  /* --- CONTENU --- */
+  .cta-content {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+  }
+
+  /* --- TITRE & TEXTE --- */
+  .cta-content h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
+
+  .cta-content p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    opacity: 0.9;
+  }
+
+  /* --- BOUTON CTA --- */
+  .cta-button {
+    display: inline-block;
+    background-color: #fff;
+    color: var(--accent);
+    font-weight: bold;
+    padding: 15px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .cta-button:hover {
+    background-color: var(--accent);
+    color: #fff;
+    transform: scale(1.05);
+  }
+
+  /* --- RESPONSIVE --- */
+  @media (max-width: 600px) {
     .cta-content h2 {
-      font-size: 2rem;
-      margin-bottom: 15px;
+      font-size: 1.6rem;
     }
 
-    .cta-content p {
-      font-size: 1.1rem;
-      margin-bottom: 30px;
-      opacity: 0.9;
-    }
-
-    /* --- BOUTON CTA --- */
     .cta-button {
-      display: inline-block;
-      background-color: #fff;
-      color: #007bff;
-      font-weight: bold;
-      padding: 15px 30px;
-      border-radius: 50px;
-      text-decoration: none;
-      transition: all 0.3s ease;
+      padding: 12px 25px;
     }
+  }
 
-    .cta-button:hover {
-      background-color: #0056b3;
-      color: #fff;
-      transform: scale(1.05);
-    }
+  .lien {
+    color: inherit;
+    font-weight: bold;
+  }
+</style>
 
-    /* --- RESPONSIVE --- */
-    @media (max-width: 600px) {
-      .cta-content h2 {
-        font-size: 1.6rem;
-      }
+<section class="cta-section">
+  <div class="cta-content">
+    <h2>Vous avez quelque chose à partager ?</h2>
+    <p>
+      Publiez votre annonce gratuitement !<br>
+      <a href="sign-in.html?redirect=edit.html" class="lien">Connectez-vous</a> ou
+      <a href="sign-up.html" class="lien">inscrivez-vous</a> pour publier une annonce !
+    </p>
+    <a href="sign-up.html?redirect=edit.html" class="cta-button" id="publish">Publier une annonce</a>
+  </div>
+</section>
 
-      .cta-button {
-        padding: 12px 25px;
-      }
-    }
 
-    .lien {
-      color: inherit;
-      font-weight: bold;
-    }
+<!-- Section Carte + Projet -->
+<section class="map-project">
+  <!-- map wrapper: contient la carte Leaflet et l'overlay de chargement -->
+  <div class="map-wrapper">
+    <div id="map"></div>
 
-  </style>
-
-  <section class="cta-section">
-    <div class="cta-content">
-      <h2>Vous avez quelque chose à partager ?</h2>
-      <p>Publiez votre annonce gratuitement !<br>
-      <a href="sign-in.html?redirect=edit.html" class="lien">Connectez-vous</a> ou <a href="sign-up.html" class="lien">inscrivez-vous</a> pour publier une annonce !</p>
-      <a href="sign-up.html?redirect=edit.html" class="cta-button" id="publish">Publier une annonce</a>
+    <!-- Overlay de chargement spécifique à la carte -->
+    <div class="map-loader" id="mapLoader" role="status" aria-live="polite" aria-hidden="true">
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="text" id="mapLoaderText">Chargement des annonces…</div>
+      <span class="sr-only" id="mapLoaderSR">Chargement en cours</span>
     </div>
-  </section>
+  </div>
 
-  <!-- Section Carte + Projet -->
-  <section class="map-project" style="max-width:1200px;margin:30px auto;padding:0 20px;display:grid;grid-template-columns:1fr 340px;gap:22px">
-    <div id="map" style="width:100%;height:380px;border-radius:12px;overflow:hidden;box-shadow:var(--shadow)"></div>
-    <div style="background:var(--card);padding:18px;border-radius:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px">
-      <h3 style="margin:0">À propos de ce projet</h3>
-      <p style="font-size:14px;color:var(--muted)">Ce prototype démontre un système d’annonces géolocalisées permettant d’explorer des biens et des services à proximité.</p>
-    </div>
-  </section>
+  <div class="project-info">
+    <h3>À propos de Voisins Solidaires</h3>
+    <p>
+      La solidarité pousse dans nos quartiers.<br>
+      Voisins Solidaires connecte ceux qui ont à partager avec ceux qui en ont besoin :<br>
+      fruits à cueillir, jardins à cultiver, coups de main, événements citoyens…
+    </p>
+    <p>Ensemble, faisons grandir les liens qui nous rassemblent.</p>
+  </div>
+</section>
+
+<style>
+  #map,
+#map * {
+  z-index: 0 !important;
+}
+  .map-project {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 22px;
+  }
+
+  .map-project #map {
+    width: 100%;
+    height: 380px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .map-project .project-info {
+    background: var(--card);
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .map-project .project-info h3 {
+    margin: 0;
+  }
+
+  .map-project .project-info p {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  /* ✅ Responsive : carte au-dessus du texte */
+  @media (max-width: 768px) {
+    .map-project {
+      grid-template-columns: 1fr;
+    }
+
+    .map-project #map {
+      order: 1;
+      height: 300px;
+    }
+
+    .map-project .project-info {
+      order: 2;
+      margin-top: 12px;
+    }
+  }
+</style>
+
 
   <main class="wrap">
     <aside class="sidebar">
@@ -254,8 +392,6 @@
           <label for="sort">Trier</label>
           <select id="sort">
             <option value="new">Plus récentes</option>
-            <option value="priceAsc">Prix ↑</option>
-            <option value="priceDesc">Prix ↓</option>
           </select>
         </div>
       </div>
@@ -272,19 +408,6 @@
   </footer>
 
   <script>
-
-
-
-
-
-
-
-
-
-
-
-
-
     // =====================================================
     // 🔁 Simulation de l'état de connexion (variable booléenne)
     // =====================================================
@@ -302,7 +425,6 @@
           <a class="auth-link" href="sign-in.html?redirect=index.html" id="linkSignIn">Se connecter</a>
           <a class="auth-btn primary" href="sign-up.html?redirect=index.html" id="linkSignUp">S'inscrire</a>
         `;
-        // prototypes : permettre au clic de "Se connecter" / "S'inscrire" de simuler une connexion
         const signIn = document.getElementById('linkSignIn');
         const signUp = document.getElementById('linkSignUp');
         signIn && signIn.addEventListener('click', (e) => {
@@ -316,10 +438,9 @@
         // utilisateur connecté : afficher Mes annonces / Se déconnecter
         authActionsEl.innerHTML = `
           <a class="auth-btn ghost" href="edit.html" id="myAdsBtn">Mes annonces</a>
-          <a class="auth-btn" id="logoutBtn">Se déconnecter</a>
+          <a class="auth-link" id="logoutBtn">Se déconnecter</a>
         `;
         document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); 
-          //isLoggedIn = false; renderAuth(); alert('Vous êtes déconnecté (simulation)');clearLoginCookie();
           isLoggedIn = false; renderAuth();
           clearLoginCookie();
       });
@@ -332,22 +453,42 @@
   </script>
 
   <script>
+    // ---------- Fonctions pour le loader de la carte ----------
+    function showMapLoader(text) {
+      const el = document.getElementById('mapLoader');
+      if (!el) return;
+      const txt = document.getElementById('mapLoaderText');
+      const sr = document.getElementById('mapLoaderSR');
+      if (text) {
+        txt.textContent = text;
+        sr.textContent = text;
+      }
+      el.classList.add('visible');
+      el.setAttribute('aria-hidden', 'false');
+    }
+    function hideMapLoader() {
+      const el = document.getElementById('mapLoader');
+      if (!el) return;
+      el.classList.remove('visible');
+      el.setAttribute('aria-hidden', 'true');
+    }
 
-
+    // ==========================================================
+    // Connexion / Login (garde l'utilisation openPageLoader existante)
+    // ==========================================================
     const spreadsheetId = "1sVCmgprkNQLroXlowU-Rp0PlUySAFZ331x3H5t3VT7A";
 
     async function Login() {
 
       console.log("Vérification de la connexion");
 
-    let cookie_user = "";
-    let cookie_password = "";
+      let cookie_user = "";
+      let cookie_password = "";
 
-    const localLogin = true;
+      const localLogin = true;
 
-
-        const loginInfo = getLoginCookie();
-    if (loginInfo) {
+      const loginInfo = getLoginCookie();
+      if (loginInfo) {
         console.log("✅ Cookie détecté :", loginInfo);
         cookie_user = loginInfo.email;
         cookie_password = loginInfo.code;
@@ -356,82 +497,128 @@
 
         if(user["password"] != cookie_password){
           user = null;
-            console.log("le mot de passe n'est plus à jour dans le cookie !");
-            clearLoginCookie(); // Supression du cookie
+          console.log("le mot de passe n'est plus à jour dans le cookie !");
+          clearLoginCookie(); // Supression du cookie
         }
-        else {
+      } else if (window.location.protocol === 'file:' && localLogin == true) {
 
+        openPageLoader("Connexion en cours...");
+
+        cookie_user = "gael.maignan@eivp-paris.fr";
+        try {
+          user = await getRowById(spreadsheetId, "users", cookie_user);
+        }catch (error) {
+          console.error("Erreur lors de la récupération :", error);
+        } finally {
+          closePageLoader();
+          // 👉 Toujours exécuté, même si erreur
         }
-    }else if (window.location.protocol === 'file:' && localLogin == true) {
+      }
 
-      openPageLoader("Connexion en cours...");
-      
-  cookie_user = "gael.maignan@eivp-paris.fr";
+      if(user){
+        closePageLoader();
+        console.log("Utilisateur:",user);
+        isLoggedIn = true;
+        renderAuth();
+      }
+    }
+
+    Login();
+// ==========================================================
+// chargement() : récupère annonces, initialise UI + carte
+// écran de chargement sur la carte pendant le fetch
+// ==========================================================
+async function chargement() {
+  // On affiche le loader sur la carte AVANT la requête
+  showMapLoader("Chargement des annonces…");
+
+  let annonces = [];
   try {
-        user = await getRowById(spreadsheetId, "users", cookie_user);
-  }catch (error) {
-    console.error("Erreur lors de la récupération :", error);
-  } finally {
-    closePageLoader();
-    // 👉 Toujours exécuté, même si erreur
-  }
-
-  }
-
-  if(user){
- closePageLoader();
-    console.log("Utilisateur:",user);
-isLoggedIn = true;
-    renderAuth();
-  }
-
-
-}
- Login();
- 
-
-
- async function chargement() {
-
-  
-const annonces = await fetchSheetData2();
-
-      
-
-
-/*
-    // Tableau d'annonces — données locales
-    const annonces = [
-      {id:1,title:"Canapé 3 places en velours",price:220,location:"Paris 11",date:"2025-10-28",category:"Meubles", image:"https://picsum.photos/seed/sofa/600/400" ,desc:"Très bon état, 2 coussins fournis.", lat:48.863, lon:2.379},
-      {id:2,title:"Vélo de ville semi-neuf",price:140,location:"Lyon",date:"2025-10-20",category:"Vélos", image:"https://picsum.photos/seed/bike/600/400",desc:"21 vitesses, révisé récemment.", lat:45.764, lon:4.835},
-      {id:3,title:"Appartement T2 centre",price:820,location:"Marseille",date:"2025-09-15",category:"Immobilier", image:"https://picsum.photos/seed/flat/600/400",desc:"45m², proche commerces.", lat:43.296, lon:5.369},
-      {id:4,title:"Ordinateur portable i5 8GB",price:280,location:"Bordeaux",date:"2025-08-01",category:"Informatique", image:"https://picsum.photos/seed/laptop/600/400",desc:"SSD 256GB, batterie OK.", lat:44.837, lon:-0.579},
-      {id:5,title:"Table à manger chêne masssif",price:350,location:"Nice",date:"2025-07-03",category:"Meubles", image:"https://picsum.photos/seed/table/600/400",desc:"Dimensions 180x90.", lat:43.710, lon:7.262},
-      {id:6,title:"Guitare acoustique Yamaha",price:120,location:"Rennes",date:"2025-06-12",category:"Musique", image:"https://picsum.photos/seed/guitar/600/400",desc:"Cordes neuves, housse incluse.", lat:48.117, lon:-1.677},
-      {id:7,title:"Machine à coudre Singer",price:60,location:"Nantes",date:"2025-05-05",category:"Maison", image:"https://picsum.photos/seed/singer/600/400",desc:"Fonctionnelle, livrée avec accessoires.", lat:47.218, lon:-1.553},
-      {id:8,title:"PS5 + 2 manettes",price:480,location:"Paris 18",date:"2025-11-01",category:"Jeux vidéo", image:"https://picsum.photos/seed/ps5/600/400",desc:"Boîte d'origine, 1To SSD ajouté.", lat:48.892, lon:2.344}
-    ];*/
+    annonces = await fetchSheetData2();
 
     // Initialisation des catégories
     const categories = Array.from(new Set(annonces.map(a=>a.category))).sort();
     const categoriesList = document.getElementById('categoriesList');
     const categorySelect = document.getElementById('categorySelect');
 
+    // --- Ajout d'une option vide dans le <select> pour "Toutes"
+    const defaultOpt = document.createElement('option');
+    defaultOpt.value = '';
+    defaultOpt.textContent = 'Toutes les catégories';
+    categorySelect.appendChild(defaultOpt);
+
+    // --- Fonction utilitaire pour (dé)sélectionner une catégorie et gérer l'état actif des boutons
+    function setCategoryValue(cat, btnElement = null) {
+      categorySelect.value = cat;
+      render();
+
+      // gestion visuelle des boutons "actifs"
+      const allBtns = categoriesList.querySelectorAll('.cat');
+      allBtns.forEach(b => b.classList.remove('active'));
+      if (btnElement) btnElement.classList.add('active');
+      else {
+        // si aucun bouton fourni (par ex. on a sélectionné via le <select>),
+        // on marque le bouton correspondant si trouvé, sinon aucun actif (toutes)
+        const matching = categoriesList.querySelector(`.cat[data-cat="${cat}"]`);
+        if (matching) matching.classList.add('active');
+      }
+    }
+
+    // --- Bouton "Toutes les catégories"
+    const btnAll = document.createElement('button');
+    btnAll.className = 'cat all-cat active'; // actif par défaut
+    btnAll.type = 'button';
+    btnAll.textContent = 'Toutes les annonces';
+    btnAll.setAttribute('aria-pressed', 'true');
+    btnAll.dataset.cat = '';
+    btnAll.addEventListener('click', ()=> {
+      setCategoryValue('', btnAll);
+      btnAll.setAttribute('aria-pressed', 'true');
+    });
+    categoriesList.appendChild(btnAll);
+
+    // --- Création des boutons de catégories
     categories.forEach(cat=>{
       const btn = document.createElement('button');
       btn.className = 'cat';
+      btn.type = 'button';
       btn.textContent = cat;
-      btn.addEventListener('click', ()=>{ document.getElementById('categorySelect').value = cat; render(); });
+      btn.dataset.cat = cat;
+      // accessible
+      btn.setAttribute('aria-pressed', 'false');
+      btn.addEventListener('click', ()=>{
+        // désactiver aria-pressed sur "Toutes"
+        btnAll.setAttribute('aria-pressed', 'false');
+        setCategoryValue(cat, btn);
+        btn.setAttribute('aria-pressed', 'true');
+      });
       categoriesList.appendChild(btn);
 
-      const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; categorySelect.appendChild(opt);
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat;
+      categorySelect.appendChild(opt);
+    });
+
+    // Si on change la sélection via le <select>, mettre à jour les boutons visuels
+    categorySelect.addEventListener('change', (e)=>{
+      const chosen = e.target.value;
+      // mettre aria et classes correctement
+      if (!chosen) {
+        setCategoryValue('', btnAll);
+        btnAll.setAttribute('aria-pressed', 'true');
+      } else {
+        const matching = categoriesList.querySelector(`.cat[data-cat="${chosen}"]`);
+        setCategoryValue(chosen, matching);
+        if (matching) matching.setAttribute('aria-pressed', 'true');
+        btnAll.setAttribute('aria-pressed', 'false');
+      }
     });
 
     // Fonctions d'affichage
     const listingsEl = document.getElementById('listings');
     const countEl = document.getElementById('count');
 
-    function formatPrice(p){ return p.toLocaleString('fr-FR') + ' €'; }
 
     function createCard(a){
       const div = document.createElement('article'); div.className = 'card';
@@ -440,7 +627,7 @@ const annonces = await fetchSheetData2();
         <div class="card-body">
           <div class="badges"><span class="badge">${escapeHtml(a.category)}</span><span class="badge">${escapeHtml(a.location)}</span></div>
           <div class="title">${escapeHtml(a.title)}</div>
-          <div class="meta"><a class="price">Par ${a.by}</a></div><!--<div class="price">${formatPrice(a.price)}</div>--><div style="font-size:12px;color:var(--muted)">${a.date}</div></div>
+          <div class="meta"><a class="price">Par ${a.by}</a></div><div style="font-size:12px;color:var(--muted)">${a.date}</div></div>
         </div>
       `;
       div.addEventListener('click', ()=>showDetail(a, true));
@@ -455,8 +642,6 @@ const annonces = await fetchSheetData2();
       if (redirect) {
        window.open("info.html", "_blank");
       }
-      // simple modal-like detail (alert for prototype)
-      //alert(`${a.title}\n\n${a.desc}\n\nPrix: ${formatPrice(a.price)}\nLieu: ${a.location}`);
     }
 
     function render(){
@@ -486,47 +671,55 @@ const annonces = await fetchSheetData2();
     document.getElementById('q').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') render(); });
     document.getElementById('sort').addEventListener('change', render);
 
-    // Render initial
-    render();
+        // Render initial
+        render();
 
 
-    // ==========================
-    // 🗺️ Initialisation de la carte
-    // ==========================
-    const map = L.map('map').setView([46.6, 2.4], 6);
+        // ==========================
+        // 🗺️ Initialisation de la carte
+        // ==========================
+        const map = L.map('map').setView([46.6, 2.4], 6);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
 
-    // Marqueurs à partir des annonces
-    annonces.forEach(a => {
-      const marker = L.marker([a.lat, a.lon]).addTo(map);
+        // Marqueurs à partir des annonces
+        annonces.forEach(a => {
+          // vérification minimale sur lat/lon
+          if (!a.lat || !a.lon) return;
+          const marker = L.marker([a.lat, a.lon]).addTo(map);
 
-      marker.on('click', () => {
-        // Popup affichée
-        const popupContent = `
-          <strong>${escapeHtml(a.title)} (${escapeHtml(a.location)})</strong><br>
-          <br>
-          ${a.desc}
-          <br>
-          <a href="info.html?id=${a.id}">En savoir plus</a>
-        `;
-        marker.bindPopup(popupContent).openPopup();
+          marker.on('click', () => {
+            // Popup affichée
+            const popupContent = `
+              <strong>${escapeHtml(a.title)} (${escapeHtml(a.location)})</strong><br>
+              <br>
+              ${a.desc}
+              <br>
+              <a href="info.html?id=${a.id}">En savoir plus</a>
+            `;
+            marker.bindPopup(popupContent).openPopup();
 
-        // Option C : déclenche le détail d'annonce
-        showDetail(a);
-      });
-    });
-}
- chargement();
- 
+            // Option : déclenche le détail d'annonce
+            showDetail(a);
+          });
+        });
 
+      } catch (err) {
+        console.error("Erreur pendant le chargement des annonces :", err);
+        // message d'erreur à l'utilisateur
+        const listingsEl = document.getElementById('listings');
+        if (listingsEl) listingsEl.innerHTML = '<div style="padding:24px;background:white;border-radius:12px;box-shadow:var(--shadow)">Erreur lors du chargement des annonces.</div>';
+      } finally {
+        // on retire le loader dans tous les cas
+        hideMapLoader();
+      }
+    }
 
+    chargement();
   </script>
-
-
 
   <script>
 
