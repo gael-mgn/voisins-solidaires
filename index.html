@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Voisins Solidaires</title>
+  <title>Le Bon Coing</title>
 
   <script src="cookie.js"></script>
 
@@ -181,7 +181,7 @@
       <div class="brand">
         <div class="logo"></div>
         <div>
-          <div style="font-size:16px">Voisins Solidaires</div>
+          <div style="font-size:16px">Le Bon Coing</div>
           <div style="font-size:12px;color:var(--muted)">Partager la terre, tisser des liens</div>
         </div>
       </div>
@@ -285,11 +285,11 @@
 
 <section class="cta-section">
   <div class="cta-content">
-    <h2>Vous avez quelque chose à partager ?</h2>
+    <h2>vous n'arrivez plus à cueillir ? Passez une annonce !</h2>
     <p>
       Publiez votre annonce gratuitement !<br>
       <a href="sign-in.html?redirect=edit.html" class="lien">Connectez-vous</a> ou
-      <a href="sign-up.html" class="lien">inscrivez-vous</a> pour publier une annonce !
+      <a href="sign-up.html" class="lien">inscrivez-vous</a> pour publier une annonce
     </p>
     <a href="sign-up.html?redirect=edit.html" class="cta-button" id="publish">Publier une annonce</a>
   </div>
@@ -311,10 +311,10 @@
   </div>
 
   <div class="project-info">
-    <h3>À propos de Voisins Solidaires</h3>
+    <h3>À propos de Le Bon Coing</h3>
     <p>
       La solidarité pousse dans nos quartiers.<br>
-      Voisins Solidaires connecte ceux qui ont à partager avec ceux qui en ont besoin :<br>
+      Le Bon Coing connecte ceux qui ont à partager avec ceux qui en ont besoin :<br>
       fruits à cueillir, jardins à cultiver, coups de main, événements citoyens…
     </p>
     <p>Ensemble, faisons grandir les liens qui nous rassemblent.</p>
@@ -481,6 +481,23 @@
     // Connexion / Login (garde l'utilisation openPageLoader existante)
     // ==========================================================
     const spreadsheetId = "1sVCmgprkNQLroXlowU-Rp0PlUySAFZ331x3H5t3VT7A";
+
+      async function write() {
+    const data = {
+    lat: "lattt",
+    lon: "lonnn"
+  };
+   try {
+  console.log("Envoi");
+  await addRow(spreadsheetId, "posts", data);
+  console.log("Envoi terminé");
+} catch (err) {
+          console.error('Erreur sauvegarde', err);
+          statusEl.textContent = 'Erreur lors de la sauvegarde.';
+        } 
+  }
+
+  write();
 
     async function Login() {
 
